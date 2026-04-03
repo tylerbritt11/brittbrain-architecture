@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BrittBrain — Unified Memory Architecture</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-green: #3fb950;
+      --accent-purple: #bc8cff;
+      --accent-orange: #d29922;
+      --accent-red: #f85149;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin-bottom: 2.5rem;
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin: 2.5rem 0 1rem;
+      color: var(--accent);
+    }
+
+    .diagram-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+    }
+
+    .diagram-container .mermaid {
+      display: flex;
+      justify-content: center;
+    }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .legend-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .legend-item h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .legend-item p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .legend-item.capture h3 { color: var(--accent); }
+    .legend-item.summarize h3 { color: var(--accent-green); }
+    .legend-item.distill h3 { color: var(--accent-purple); }
+    .legend-item.retrieve h3 { color: var(--accent-orange); }
+
+    .stage-label {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: 0.4rem;
+    }
+
+    .stage-label.auto { background: rgba(63, 185, 80, 0.15); color: var(--accent-green); }
+    .stage-label.manual { background: rgba(210, 153, 34, 0.15); color: var(--accent-orange); }
+    .stage-label.scheduled { background: rgba(188, 140, 255, 0.15); color: var(--accent-purple); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    code {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.85em;
+      background: rgba(88, 166, 255, 0.1);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+      color: var(--accent);
+    }
+
+    .footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .vault-tree {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.85rem;
+      line-height: 1.8;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+
+    .vault-tree .new { color: var(--accent-green); }
+    .vault-tree .existing { color: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+  <h1>BrittBrain</h1>
+  <p class="subtitle">Unified Memory Architecture &mdash; Knowledge capture across Claude Code, BrittBot, and future agents</p>
+
+  <!-- ===== CAPTURE LOOP ===== -->
+  <h2>The Capture Loop</h2>
+  <p>Knowledge flows through four stages in a continuous loop. Every stage is automatic except optional review in Obsidian.</p>
+
+  <div class="diagram-container">
+    <div class="mermaid">
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#1f6feb', 'primaryTextColor': '#e6edf3', 'primaryBorderColor': '#58a6ff', 'lineColor': '#58a6ff', 'secondaryColor': '#161b22', 'tertiaryColor': '#0d1117', 'edgeLabelBackground': '#0d1117', 'fontSize': '14px' }}}%%
+graph LR
+  subgraph S1["STAGE 1 &mdash; CAPTURE"]
+    direction TB
+    CC["Claude Code<br/><small>laptop / Mac mini</small>"]
+    BB["BrittBot<br/><small>OpenClaw, always-on</small>"]
+  end
+
+  subgraph S2["STAGE 2 &mdash; SUMMARIZE"]
+    direction TB
+    HOOK["Session Hooks<br/><small>PreCompact + SessionEnd</small>"]
+    DAILY["logs/daily/<br/><small>auto-generated breadcrumbs</small>"]
+  end
+
+  subgraph S3["STAGE 3 &mdash; DISTILL"]
+    direction TB
+    CRON["BrittBot Cron<br/><small>nightly, 11pm ET</small>"]
+    KN["knowledge/<br/><small>decisions, learnings, patterns</small>"]
+    PROJ["notes/projects/<br/><small>status updates</small>"]
+    CRM["notes/crm/<br/><small>contact + company updates</small>"]
+    IDX["_index/<br/><small>active-context, project-state</small>"]
+  end
+
+  subgraph S4["STAGE 4 &mdash; RETRIEVE"]
+    direction TB
+    BOOT["Session Start<br/><small>read _index/ files</small>"]
+    QUERY["On-demand<br/><small>grep + glob vault</small>"]
+  end
+
+  CC -->|"write captures"| INBOX["inbox/claude/<br/>inbox/brittbot/"]
+  BB -->|"write captures"| INBOX
+  INBOX --> HOOK
+  HOOK -->|"append"| DAILY
+  INBOX --> CRON
+  CRON --> KN
+  CRON --> PROJ
+  CRON --> CRM
+  CRON --> IDX
+  IDX --> BOOT
+  KN --> QUERY
+  BOOT -->|"context loaded"| CC
+  QUERY -->|"knowledge found"| CC
+  BOOT -->|"context loaded"| BB
+  QUERY -->|"knowledge found"| BB
+
+  style S1 fill:#0d2137,stroke:#1f6feb,stroke-width:2px
+  style S2 fill:#0d2517,stroke:#238636,stroke-width:2px
+  style S3 fill:#1a0d2e,stroke:#8957e5,stroke-width:2px
+  style S4 fill:#2b1d0e,stroke:#d29922,stroke-width:2px
+  style INBOX fill:#161b22,stroke:#58a6ff,stroke-width:1px
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item capture">
+      <span class="stage-label auto">Automatic</span>
+      <h3>1. Capture</h3>
+      <p>Agents write atomic capture files to <code>inbox/{agent}/</code> as they work. Decisions, learnings, progress, interactions, observations.</p>
+    </div>
+    <div class="legend-item summarize">
+      <span class="stage-label auto">Automatic</span>
+      <h3>2. Summarize</h3>
+      <p>Session hooks append breadcrumbs to the daily log on PreCompact and SessionEnd. No manual log writing.</p>
+    </div>
+    <div class="legend-item distill">
+      <span class="stage-label scheduled">Scheduled</span>
+      <h3>3. Distill</h3>
+      <p>BrittBot cron processes inbox captures nightly. Creates structured notes with frontmatter and <code>[[wikilinks]]</code>. Updates indexes.</p>
+    </div>
+    <div class="legend-item retrieve">
+      <span class="stage-label auto">Automatic</span>
+      <h3>4. Retrieve</h3>
+      <p>Agents read <code>_index/</code> at session start for context. Query <code>knowledge/</code> and <code>notes/</code> on demand during sessions.</p>
+    </div>
+  </div>
+
+  <!-- ===== SYSTEM ARCHITECTURE ===== -->
+  <h2>System Architecture</h2>
+
+  <div class="diagram-container">
+    <div class="mermaid">
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#1f6feb', 'primaryTextColor': '#e6edf3', 'primaryBorderColor': '#58a6ff', 'lineColor': '#58a6ff', 'secondaryColor': '#161b22', 'tertiaryColor': '#0d1117', 'edgeLabelBackground': '#0d1117', 'fontSize': '14px' }}}%%
+graph TB
+  subgraph LAPTOP["Tyler's Laptop"]
+    OBS["Obsidian<br/><small>reads vault via iCloud</small>"]
+    CL["Claude Code<br/><small>reads/writes vault files</small>"]
+    HOOK_L["Session Hooks<br/><small>capture + summarize</small>"]
+    CL --> HOOK_L
+  end
+
+  subgraph MINI["Mac Mini (always-on)"]
+    subgraph TYLER_USER["tylerbritt user"]
+      CL2["Claude Code<br/><small>reads/writes vault files</small>"]
+    end
+    subgraph BB_USER["brittbot user"]
+      BOT["BrittBot / OpenClaw<br/><small>filesystem access to git clone</small>"]
+      DIST["Distillation Cron<br/><small>nightly processing</small>"]
+      BOT --> DIST
+    end
+  end
+
+  subgraph VAULT["BrittBrain Vault (Git)"]
+    IN["inbox/"]
+    KN2["knowledge/"]
+    NT["notes/"]
+    LG["logs/"]
+    IX["_index/"]
+  end
+
+  CL -->|"write captures"| IN
+  HOOK_L -->|"write summaries"| LG
+  CL2 -->|"write captures"| IN
+  BOT -->|"write captures"| IN
+  DIST -->|"distill + link"| KN2
+  DIST -->|"update projects"| NT
+  DIST -->|"update indexes"| IX
+  OBS -->|"human browses"| VAULT
+  IX -->|"boot context"| CL
+  IX -->|"boot context"| CL2
+  IX -->|"boot context"| BOT
+
+  GIT["Git Sync<br/><small>obsidian-git + cron pull/push</small>"]
+  VAULT --> GIT
+  GIT --> VAULT
+
+  style LAPTOP fill:#0d1117,stroke:#30363d,stroke-width:2px
+  style MINI fill:#0d1117,stroke:#30363d,stroke-width:2px
+  style TYLER_USER fill:#161b22,stroke:#30363d,stroke-width:1px
+  style BB_USER fill:#161b22,stroke:#30363d,stroke-width:1px
+  style VAULT fill:#0d2137,stroke:#1f6feb,stroke-width:2px
+    </div>
+  </div>
+
+  <!-- ===== CAPTURE TYPES ===== -->
+  <h2>Capture Types</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Type</th><th>When</th><th>Example</th><th>Distills To</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>decision</code></td>
+          <td>Chose between alternatives</td>
+          <td>"Switched from Gemini to OpenAI because of 12-20% empty responses"</td>
+          <td><code>knowledge/decisions/</code></td>
+        </tr>
+        <tr>
+          <td><code>learning</code></td>
+          <td>Discovered something non-obvious</td>
+          <td>"Use patch-package, never edit node_modules directly"</td>
+          <td><code>knowledge/learnings/</code></td>
+        </tr>
+        <tr>
+          <td><code>progress</code></td>
+          <td>Shipped, unblocked, or hit milestone</td>
+          <td>"PR #507 merged, web layout live on staging"</td>
+          <td><code>notes/projects/{project}/</code></td>
+        </tr>
+        <tr>
+          <td><code>interaction</code></td>
+          <td>Meeting, call, or conversation</td>
+          <td>"Talked to Jane at Acme about Q3 timeline"</td>
+          <td><code>notes/crm/people/</code></td>
+        </tr>
+        <tr>
+          <td><code>observation</code></td>
+          <td>Cross-domain connection or insight</td>
+          <td>"Parking acquisition pipeline mirrors the email intake pattern"</td>
+          <td><code>knowledge/patterns/</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===== VAULT STRUCTURE ===== -->
+  <h2>Vault Structure</h2>
+  <div class="vault-tree">
+<span class="existing">BrittBrain/</span>
+<span class="existing">&boxvr;&boxh;&boxh; Home.md</span>
+<span class="existing">&boxvr;&boxh;&boxh; AGENTS.md / CLAUDE.md</span>
+<span class="existing">&boxvr;&boxh;&boxh; inbox/</span>
+<span class="new">&boxvr;   &boxvr;&boxh;&boxh; claude/              &larr; NEW &mdash; raw captures from Claude Code</span>
+<span class="new">&boxvr;   &boxvr;&boxh;&boxh; brittbot/            &larr; NEW &mdash; raw captures from BrittBot</span>
+<span class="existing">&boxvr;   &boxur;&boxh;&boxh; (loose files)        existing quick-capture</span>
+<span class="existing">&boxvr;&boxh;&boxh; logs/</span>
+<span class="existing">&boxvr;   &boxvr;&boxh;&boxh; daily/               auto-generated daily summaries</span>
+<span class="existing">&boxvr;   &boxvr;&boxh;&boxh; books/               unchanged</span>
+<span class="existing">&boxvr;   &boxur;&boxh;&boxh; workouts/            unchanged</span>
+<span class="existing">&boxvr;&boxh;&boxh; notes/</span>
+<span class="existing">&boxvr;   &boxvr;&boxh;&boxh; projects/</span>
+<span class="new">&boxvr;   &boxvr;   &boxvr;&boxh;&boxh; well-kept/       &larr; NEW</span>
+<span class="new">&boxvr;   &boxvr;   &boxur;&boxh;&boxh; parking/         &larr; NEW</span>
+<span class="existing">&boxvr;   &boxvr;&boxh;&boxh; references/          unchanged</span>
+<span class="new">&boxvr;   &boxur;&boxh;&boxh; crm/                 &larr; NEW &mdash; CRM domain</span>
+<span class="new">&boxvr;       &boxvr;&boxh;&boxh; people/          person---first-last.md</span>
+<span class="new">&boxvr;       &boxur;&boxh;&boxh; companies/       company---name.md</span>
+<span class="new">&boxvr;&boxh;&boxh; knowledge/               &larr; NEW &mdash; distilled cross-domain</span>
+<span class="new">&boxvr;   &boxvr;&boxh;&boxh; decisions/</span>
+<span class="new">&boxvr;   &boxvr;&boxh;&boxh; learnings/</span>
+<span class="new">&boxvr;   &boxur;&boxh;&boxh; patterns/</span>
+<span class="new">&boxvr;&boxh;&boxh; _index/                  &larr; NEW &mdash; agent boot context</span>
+<span class="new">&boxvr;   &boxvr;&boxh;&boxh; active-context.md</span>
+<span class="new">&boxvr;   &boxvr;&boxh;&boxh; project-state.md</span>
+<span class="new">&boxvr;   &boxur;&boxh;&boxh; entity-map.md</span>
+<span class="existing">&boxur;&boxh;&boxh; ops/                     unchanged</span>
+  </div>
+
+  <!-- ===== HABITS ===== -->
+  <h2>Habits Cheat Sheet</h2>
+  <p>The system is designed to run with zero manual effort. These optional habits maximize capture quality.</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>When</th><th>Do</th><th>Why</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Ending a Claude session</td>
+          <td>Type <code>/exit</code> instead of closing the terminal</td>
+          <td>Gives SessionEnd hook time to write the daily log breadcrumb cleanly</td>
+        </tr>
+        <tr>
+          <td>After a big decision</td>
+          <td>Say "capture that decision to BrittBrain"</td>
+          <td>Prompts Claude to write a capture file immediately instead of waiting</td>
+        </tr>
+        <tr>
+          <td>Morning</td>
+          <td>Glance at <code>_index/active-context.md</code> in Obsidian</td>
+          <td>See what the system thinks you're working on &mdash; correct if wrong</td>
+        </tr>
+        <tr>
+          <td>Weekly</td>
+          <td>Browse the Obsidian graph view</td>
+          <td>Spot cross-domain connections the distillation agent created</td>
+        </tr>
+        <tr>
+          <td>After a Telegram conversation with BrittBot</td>
+          <td>Nothing &mdash; BrittBot auto-captures</td>
+          <td>Captures flow through <code>inbox/brittbot/</code> automatically</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <p>BrittBrain Unified Memory Architecture &mdash; Designed April 2026</p>
+    <p>Obsidian vault as single source of truth. Git-synced across devices. Automated capture, distillation, and retrieval.</p>
+  </div>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      securityLevel: 'loose',
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: true,
+        curve: 'basis'
+      }
+    });
+  </script>
+</body>
+</html>
+```
+</invoke>
