@@ -3,445 +3,748 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BrittBrain — Unified Memory Architecture</title>
+  <meta name="color-scheme" content="dark">
+  <title>Memory Architecture — GBrain Topology</title>
   <style>
     :root {
       --bg: #0d1117;
       --surface: #161b22;
+      --surface-raised: #1c2128;
       --border: #30363d;
+      --border-strong: #484f58;
       --text: #e6edf3;
       --text-muted: #8b949e;
-      --accent: #58a6ff;
-      --accent-green: #3fb950;
-      --accent-purple: #bc8cff;
-      --accent-orange: #d29922;
-      --accent-red: #f85149;
+      --work: #58a6ff;
+      --work-soft: rgba(88, 166, 255, 0.12);
+      --personal: #3fb950;
+      --personal-soft: rgba(63, 185, 80, 0.12);
+      --warning: #d29922;
+      --max-width: 1180px;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      min-height: 100vh;
       background: var(--bg);
       color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
       line-height: 1.6;
-      padding: 2rem;
-      max-width: 1100px;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    code {
+      border-radius: 4px;
+      background: rgba(110, 118, 129, 0.18);
+      color: var(--text);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.86em;
+      padding: 0.16em 0.42em;
+    }
+
+    .page-shell {
+      width: min(calc(100% - 3rem), var(--max-width));
       margin: 0 auto;
     }
 
-    h1 {
-      font-size: 2rem;
-      font-weight: 600;
-      margin-bottom: 0.25rem;
+    .hero {
+      min-height: 44vh;
+      display: flex;
+      align-items: flex-end;
+      border-bottom: 1px solid var(--border);
+      padding: 5.5rem 0 3.5rem;
     }
 
-    .subtitle {
+    .hero-inner {
+      width: min(820px, 100%);
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
       color: var(--text-muted);
-      font-size: 1.1rem;
-      margin-bottom: 2.5rem;
+      font-size: 0.76rem;
+      font-weight: 650;
+      letter-spacing: 0.12em;
+      margin-bottom: 1.2rem;
+      text-transform: uppercase;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--personal);
+      box-shadow: 0 0 0 5px var(--personal-soft);
+    }
+
+    h1 {
+      max-width: 780px;
+      font-size: clamp(2.5rem, 7vw, 5.7rem);
+      font-weight: 620;
+      letter-spacing: -0.055em;
+      line-height: 0.98;
+    }
+
+    .hero-copy {
+      max-width: 680px;
+      color: var(--text-muted);
+      font-size: clamp(1rem, 2vw, 1.22rem);
+      margin-top: 1.6rem;
+    }
+
+    .hero-facts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem 1.4rem;
+      margin-top: 1.8rem;
+      color: var(--text-muted);
+      font-size: 0.84rem;
+    }
+
+    .hero-facts span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .hero-facts span::before {
+      content: "";
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--border-strong);
+    }
+
+    main {
+      padding: 0 0 5rem;
+    }
+
+    section {
+      border-bottom: 1px solid var(--border);
+      padding: 4.5rem 0;
+    }
+
+    .section-heading {
+      display: grid;
+      grid-template-columns: minmax(180px, 0.38fr) minmax(0, 1fr);
+      gap: 2rem;
+      margin-bottom: 2.25rem;
+    }
+
+    .section-index {
+      color: var(--text-muted);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.74rem;
+      letter-spacing: 0.08em;
+      padding-top: 0.38rem;
+      text-transform: uppercase;
     }
 
     h2 {
-      font-size: 1.4rem;
-      font-weight: 600;
-      margin: 2.5rem 0 1rem;
-      color: var(--accent);
+      font-size: clamp(1.65rem, 4vw, 2.55rem);
+      font-weight: 590;
+      letter-spacing: -0.035em;
+      line-height: 1.1;
+    }
+
+    .section-intro {
+      max-width: 690px;
+      color: var(--text-muted);
+      font-size: 1rem;
+      margin-top: 0.9rem;
     }
 
     .diagram-container {
-      background: var(--surface);
+      min-height: 520px;
+      display: grid;
+      place-items: center;
+      overflow-x: auto;
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 2rem;
-      margin: 1.5rem 0;
-      overflow-x: auto;
+      background: var(--surface);
+      padding: 2.5rem 1.5rem;
     }
 
     .diagram-container .mermaid {
+      width: 100%;
       display: flex;
       justify-content: center;
     }
 
-    .legend {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1rem;
-      margin: 1.5rem 0;
-    }
-
-    .legend-item {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1rem;
-    }
-
-    .legend-item h3 {
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin-bottom: 0.4rem;
-    }
-
-    .legend-item p {
-      font-size: 0.85rem;
+    .diagram-hint {
+      display: none;
       color: var(--text-muted);
+      font-size: 0.78rem;
+      margin-bottom: 0.75rem;
     }
 
-    .legend-item.capture h3 { color: var(--accent); }
-    .legend-item.summarize h3 { color: var(--accent-green); }
-    .legend-item.distill h3 { color: var(--accent-purple); }
-    .legend-item.retrieve h3 { color: var(--accent-orange); }
+    .mermaid svg .node {
+      transition: filter 180ms ease;
+    }
 
-    .stage-label {
-      display: inline-block;
-      font-size: 0.7rem;
-      font-weight: 600;
+    .mermaid svg .node:hover {
+      filter: brightness(1.14);
+    }
+
+    .lane-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 3rem;
+    }
+
+    .lane {
+      border-top: 3px solid var(--border-strong);
+      padding-top: 1.5rem;
+    }
+
+    .lane.work {
+      border-top-color: var(--work);
+    }
+
+    .lane.personal {
+      border-top-color: var(--personal);
+    }
+
+    .lane-label {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.74rem;
+      font-weight: 650;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.75rem;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding: 2px 8px;
-      border-radius: 4px;
-      margin-bottom: 0.4rem;
     }
 
-    .stage-label.auto { background: rgba(63, 185, 80, 0.15); color: var(--accent-green); }
-    .stage-label.manual { background: rgba(210, 153, 34, 0.15); color: var(--accent-orange); }
-    .stage-label.scheduled { background: rgba(188, 140, 255, 0.15); color: var(--accent-purple); }
+    .work .lane-label {
+      color: var(--work);
+    }
+
+    .personal .lane-label {
+      color: var(--personal);
+    }
+
+    .lane h3 {
+      font-size: 1.45rem;
+      font-weight: 590;
+      letter-spacing: -0.02em;
+    }
+
+    .lane > p {
+      color: var(--text-muted);
+      margin-top: 0.55rem;
+    }
+
+    .fact-list {
+      list-style: none;
+      margin-top: 1.4rem;
+    }
+
+    .fact-list li {
+      display: grid;
+      grid-template-columns: 9rem minmax(0, 1fr);
+      gap: 1rem;
+      border-top: 1px solid var(--border);
+      padding: 0.85rem 0;
+      font-size: 0.9rem;
+    }
+
+    .fact-list strong {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 550;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
 
     .table-wrap {
       overflow-x: auto;
-      margin: 1rem 0;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.9rem;
+      font-size: 0.91rem;
     }
 
-    th, td {
-      text-align: left;
-      padding: 0.6rem 1rem;
+    th,
+    td {
       border-bottom: 1px solid var(--border);
+      padding: 1rem 1.1rem;
+      text-align: left;
+      vertical-align: top;
     }
 
     th {
       color: var(--text-muted);
-      font-weight: 600;
-      font-size: 0.8rem;
+      font-size: 0.72rem;
+      font-weight: 650;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
     }
 
-    code {
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      font-size: 0.85em;
-      background: rgba(88, 166, 255, 0.1);
-      padding: 0.15em 0.4em;
-      border-radius: 4px;
-      color: var(--accent);
+    td:first-child {
+      color: var(--text);
+      font-weight: 590;
+      white-space: nowrap;
+    }
+
+    td:not(:first-child) {
+      color: var(--text-muted);
+    }
+
+    .flow-list {
+      counter-reset: flow;
+      list-style: none;
+    }
+
+    .flow-list li {
+      counter-increment: flow;
+      display: grid;
+      grid-template-columns: 3rem minmax(0, 1fr);
+      gap: 1.3rem;
+      border-top: 1px solid var(--border);
+      padding: 1.25rem 0;
+    }
+
+    .flow-list li::before {
+      content: "0" counter(flow);
+      color: var(--text-muted);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.78rem;
+      padding-top: 0.12rem;
+    }
+
+    .flow-list strong {
+      display: block;
+      font-size: 1rem;
+      font-weight: 580;
+      margin-bottom: 0.2rem;
+    }
+
+    .flow-list p {
+      color: var(--text-muted);
+      font-size: 0.91rem;
+    }
+
+    .boundary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0 3rem;
+    }
+
+    .boundary {
+      border-top: 1px solid var(--border);
+      padding: 1.2rem 0 1.3rem;
+    }
+
+    .boundary h3 {
+      font-size: 0.98rem;
+      font-weight: 590;
+      margin-bottom: 0.35rem;
+    }
+
+    .boundary p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .boundary strong {
+      color: var(--text);
     }
 
     .footer {
-      margin-top: 3rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 2rem;
       color: var(--text-muted);
-      font-size: 0.85rem;
+      font-size: 0.82rem;
+      padding: 2rem 0 4rem;
     }
 
-    .vault-tree {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 1.5rem;
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      font-size: 0.85rem;
-      line-height: 1.8;
-      overflow-x: auto;
-      margin: 1rem 0;
+    .reveal {
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity 520ms ease, transform 520ms ease;
     }
 
-    .vault-tree .new { color: var(--accent-green); }
-    .vault-tree .existing { color: var(--text-muted); }
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .hero .eyebrow,
+    .hero h1,
+    .hero-copy,
+    .hero-facts {
+      opacity: 0;
+      transform: translateY(12px);
+      animation: hero-in 520ms ease forwards;
+    }
+
+    .hero h1 { animation-delay: 70ms; }
+    .hero-copy { animation-delay: 140ms; }
+    .hero-facts { animation-delay: 210ms; }
+
+    @keyframes hero-in {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 760px) {
+      .page-shell {
+        width: min(calc(100% - 2rem), var(--max-width));
+      }
+
+      .hero {
+        min-height: auto;
+        padding: 4rem 0 2.75rem;
+      }
+
+      section {
+        padding: 3.5rem 0;
+      }
+
+      .section-heading,
+      .lane-grid,
+      .boundary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-heading {
+        gap: 0.8rem;
+      }
+
+      .lane-grid {
+        gap: 2.4rem;
+      }
+
+      .fact-list li {
+        grid-template-columns: 7rem minmax(0, 1fr);
+      }
+
+      .diagram-container {
+        min-height: 430px;
+        display: block;
+        -webkit-overflow-scrolling: touch;
+        padding: 1.5rem 0.5rem;
+      }
+
+      .diagram-container .mermaid {
+        width: 860px;
+        min-width: 860px;
+        justify-content: flex-start;
+      }
+
+      .diagram-container .mermaid svg {
+        width: 860px !important;
+        max-width: none !important;
+        height: auto;
+      }
+
+      .diagram-hint {
+        display: block;
+      }
+
+      .footer {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+
+      .reveal {
+        opacity: 1;
+        transform: none;
+      }
+    }
   </style>
 </head>
 <body>
-
-  <h1>BrittBrain</h1>
-  <p class="subtitle">Unified Memory Architecture &mdash; Knowledge capture across Claude Code, BrittBot, and future agents</p>
-
-  <!-- ===== CAPTURE LOOP ===== -->
-  <h2>The Capture Loop</h2>
-  <p>Knowledge flows through four stages in a continuous loop. Every stage is automatic except optional review in Obsidian.</p>
-
-  <div class="diagram-container">
-    <div class="mermaid">
-%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#1f6feb', 'primaryTextColor': '#e6edf3', 'primaryBorderColor': '#58a6ff', 'lineColor': '#58a6ff', 'secondaryColor': '#161b22', 'tertiaryColor': '#0d1117', 'edgeLabelBackground': '#0d1117', 'fontSize': '14px' }}}%%
-graph LR
-  subgraph S1["STAGE 1 &mdash; CAPTURE"]
-    direction TB
-    CC["Claude Code<br/><small>laptop / Mac mini</small>"]
-    BB["BrittBot<br/><small>OpenClaw, always-on</small>"]
-  end
-
-  subgraph S2["STAGE 2 &mdash; SUMMARIZE"]
-    direction TB
-    HOOK["Session Hooks<br/><small>PreCompact + SessionEnd</small>"]
-    DAILY["logs/daily/<br/><small>auto-generated breadcrumbs</small>"]
-  end
-
-  subgraph S3["STAGE 3 &mdash; DISTILL"]
-    direction TB
-    CRON["BrittBot Cron<br/><small>nightly, 11pm ET</small>"]
-    KN["knowledge/<br/><small>decisions, learnings, patterns</small>"]
-    PROJ["notes/projects/<br/><small>status updates</small>"]
-    CRM["notes/crm/<br/><small>contact + company updates</small>"]
-    IDX["_index/<br/><small>active-context, project-state</small>"]
-  end
-
-  subgraph S4["STAGE 4 &mdash; RETRIEVE"]
-    direction TB
-    BOOT["Session Start<br/><small>read _index/ files</small>"]
-    QUERY["On-demand<br/><small>grep + glob vault</small>"]
-  end
-
-  CC -->|"write captures"| INBOX["inbox/claude/<br/>inbox/brittbot/"]
-  BB -->|"write captures"| INBOX
-  INBOX --> HOOK
-  HOOK -->|"append"| DAILY
-  INBOX --> CRON
-  CRON --> KN
-  CRON --> PROJ
-  CRON --> CRM
-  CRON --> IDX
-  IDX --> BOOT
-  KN --> QUERY
-  BOOT -->|"context loaded"| CC
-  QUERY -->|"knowledge found"| CC
-  BOOT -->|"context loaded"| BB
-  QUERY -->|"knowledge found"| BB
-
-  style S1 fill:#0d2137,stroke:#1f6feb,stroke-width:2px
-  style S2 fill:#0d2517,stroke:#238636,stroke-width:2px
-  style S3 fill:#1a0d2e,stroke:#8957e5,stroke-width:2px
-  style S4 fill:#2b1d0e,stroke:#d29922,stroke-width:2px
-  style INBOX fill:#161b22,stroke:#58a6ff,stroke-width:1px
+  <header class="hero">
+    <div class="page-shell">
+      <div class="hero-inner">
+        <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span>Verified operating model</p>
+        <h1>One memory system. Two deliberate lanes.</h1>
+        <p class="hero-copy">KraneBrain serves work. BrittBrain serves personal knowledge. Claude and Codex use the same names everywhere, while each machine has one clear operational role.</p>
+        <div class="hero-facts" aria-label="Architecture principles">
+          <span>Markdown remains canonical</span>
+          <span>GBrain provides retrieval</span>
+          <span>No GBrain dependency on BrittBot or OpenClaw</span>
+        </div>
+      </div>
     </div>
-  </div>
+  </header>
 
-  <div class="legend">
-    <div class="legend-item capture">
-      <span class="stage-label auto">Automatic</span>
-      <h3>1. Capture</h3>
-      <p>Agents write atomic capture files to <code>inbox/{agent}/</code> as they work. Decisions, learnings, progress, interactions, observations.</p>
-    </div>
-    <div class="legend-item summarize">
-      <span class="stage-label auto">Automatic</span>
-      <h3>2. Summarize</h3>
-      <p>Session hooks append breadcrumbs to the daily log on PreCompact and SessionEnd. No manual log writing.</p>
-    </div>
-    <div class="legend-item distill">
-      <span class="stage-label scheduled">Scheduled</span>
-      <h3>3. Distill</h3>
-      <p>BrittBot cron processes inbox captures nightly. Creates structured notes with frontmatter and <code>[[wikilinks]]</code>. Updates indexes.</p>
-    </div>
-    <div class="legend-item retrieve">
-      <span class="stage-label auto">Automatic</span>
-      <h3>4. Retrieve</h3>
-      <p>Agents read <code>_index/</code> at session start for context. Query <code>knowledge/</code> and <code>notes/</code> on demand during sessions.</p>
-    </div>
-  </div>
+  <main class="page-shell">
+    <section class="reveal" aria-labelledby="topology-title">
+      <div class="section-heading">
+        <p class="section-index">01 / Topology</p>
+        <div>
+          <h2 id="topology-title">Canonical architecture</h2>
+          <p class="section-intro">The MacBook is the sole writer for the work index. The Mac Mini provides always-on work retrieval and is the sole host for the personal index.</p>
+        </div>
+      </div>
 
-  <!-- ===== SYSTEM ARCHITECTURE ===== -->
-  <h2>System Architecture</h2>
-
-  <div class="diagram-container">
-    <div class="mermaid">
-%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#1f6feb', 'primaryTextColor': '#e6edf3', 'primaryBorderColor': '#58a6ff', 'lineColor': '#58a6ff', 'secondaryColor': '#161b22', 'tertiaryColor': '#0d1117', 'edgeLabelBackground': '#0d1117', 'fontSize': '14px' }}}%%
-graph TB
-  subgraph LAPTOP["Tyler's Laptop"]
-    OBS["Obsidian<br/><small>reads vault via iCloud</small>"]
-    CL["Claude Code<br/><small>reads/writes vault files</small>"]
-    HOOK_L["Session Hooks<br/><small>capture + summarize</small>"]
-    CL --> HOOK_L
+      <p class="diagram-hint">Scroll horizontally to inspect the complete topology →</p>
+      <div class="diagram-container">
+        <div class="mermaid">
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#1c2128', 'primaryTextColor': '#e6edf3', 'primaryBorderColor': '#484f58', 'lineColor': '#8b949e', 'secondaryColor': '#161b22', 'tertiaryColor': '#0d1117', 'edgeLabelBackground': '#161b22', 'fontSize': '14px' }}}%%
+flowchart TB
+  subgraph PEOPLE["Interfaces"]
+    MB_CLIENT["Claude + Codex<br/><small>MacBook</small>"]
+    MM_CLIENT["Claude + Codex<br/><small>Mac Mini</small>"]
   end
 
-  subgraph MINI["Mac Mini (always-on)"]
-    subgraph TYLER_USER["tylerbritt user"]
-      CL2["Claude Code<br/><small>reads/writes vault files</small>"]
-    end
-    subgraph BB_USER["brittbot user"]
-      BOT["BrittBot / OpenClaw<br/><small>filesystem access to git clone</small>"]
-      DIST["Distillation Cron<br/><small>nightly processing</small>"]
-      BOT --> DIST
-    end
+  subgraph WORK["WORK LANE — gbrain"]
+    KB_MB["KraneBrain<br/><small>MacBook vault</small>"]
+    SYNC["Obsidian Sync<br/><small>two-way mirror</small>"]
+    KB_MM["KraneBrain mirror<br/><small>Mac Mini vault</small>"]
+    GB_MB["MacBook GBrain<br/><small>sole writer + maintenance</small>"]
+    SUP[("Supabase Postgres<br/><small>shared work index</small>")]
+    GB_MM["Mini work profile<br/><small>query only</small>"]
+
+    KB_MB -->|"sync notes"| SYNC
+    SYNC -->|"mirror notes"| KB_MM
+    KB_MB -->|"ingest + maintain"| GB_MB
+    GB_MB -->|"write + query"| SUP
+    SUP -->|"results"| GB_MB
+    GB_MM -->|"query"| SUP
   end
 
-  subgraph VAULT["BrittBrain Vault (Git)"]
-    IN["inbox/"]
-    KN2["knowledge/"]
-    NT["notes/"]
-    LG["logs/"]
-    IX["_index/"]
+  subgraph PERSONAL["PERSONAL LANE — brittbrain"]
+    BB_VAULT["BrittBrain<br/><small>Markdown vault</small>"]
+    GB_PERSONAL["Mini personal GBrain<br/><small>sole host + maintenance</small>"]
+    LOCAL[("Local PostgreSQL<br/><small>personal index</small>")]
+
+    BB_VAULT -->|"ingest + maintain"| GB_PERSONAL
+    GB_PERSONAL -->|"write + query"| LOCAL
+    LOCAL -->|"results"| GB_PERSONAL
   end
 
-  CL -->|"write captures"| IN
-  HOOK_L -->|"write summaries"| LG
-  CL2 -->|"write captures"| IN
-  BOT -->|"write captures"| IN
-  DIST -->|"distill + link"| KN2
-  DIST -->|"update projects"| NT
-  DIST -->|"update indexes"| IX
-  OBS -->|"human browses"| VAULT
-  IX -->|"boot context"| CL
-  IX -->|"boot context"| CL2
-  IX -->|"boot context"| BOT
+  MB_CLIENT -->|"gbrain"| GB_MB
+  MM_CLIENT -->|"gbrain"| GB_MM
+  MB_CLIENT -->|"brittbrain"| GB_PERSONAL
+  MM_CLIENT -->|"brittbrain"| GB_PERSONAL
+  KB_MM -.->|"files available; no Mini ingestion"| MM_CLIENT
 
-  GIT["Git Sync<br/><small>obsidian-git + cron pull/push</small>"]
-  VAULT --> GIT
-  GIT --> VAULT
+  classDef work fill:#0d2137,stroke:#58a6ff,color:#e6edf3,stroke-width:1.5px
+  classDef personal fill:#0d2517,stroke:#3fb950,color:#e6edf3,stroke-width:1.5px
+  classDef neutral fill:#1c2128,stroke:#484f58,color:#e6edf3
+  class KB_MB,SYNC,KB_MM,GB_MB,SUP,GB_MM work
+  class BB_VAULT,GB_PERSONAL,LOCAL personal
+  class MB_CLIENT,MM_CLIENT neutral
+  style WORK fill:#0d1117,stroke:#58a6ff,stroke-width:2px
+  style PERSONAL fill:#0d1117,stroke:#3fb950,stroke-width:2px
+  style PEOPLE fill:#0d1117,stroke:#30363d,stroke-width:1px
+        </div>
+      </div>
+    </section>
 
-  style LAPTOP fill:#0d1117,stroke:#30363d,stroke-width:2px
-  style MINI fill:#0d1117,stroke:#30363d,stroke-width:2px
-  style TYLER_USER fill:#161b22,stroke:#30363d,stroke-width:1px
-  style BB_USER fill:#161b22,stroke:#30363d,stroke-width:1px
-  style VAULT fill:#0d2137,stroke:#1f6feb,stroke-width:2px
-    </div>
-  </div>
+    <section class="reveal" aria-labelledby="lanes-title">
+      <div class="section-heading">
+        <p class="section-index">02 / Retrieval lanes</p>
+        <div>
+          <h2 id="lanes-title">Names carry the boundary</h2>
+          <p class="section-intro">Claude and Codex see the same two tools on either machine. The tool name makes the intended knowledge domain explicit.</p>
+        </div>
+      </div>
 
-  <!-- ===== CAPTURE TYPES ===== -->
-  <h2>Capture Types</h2>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th>Type</th><th>When</th><th>Example</th><th>Distills To</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>decision</code></td>
-          <td>Chose between alternatives</td>
-          <td>"Switched from Gemini to OpenAI because of 12-20% empty responses"</td>
-          <td><code>knowledge/decisions/</code></td>
-        </tr>
-        <tr>
-          <td><code>learning</code></td>
-          <td>Discovered something non-obvious</td>
-          <td>"Use patch-package, never edit node_modules directly"</td>
-          <td><code>knowledge/learnings/</code></td>
-        </tr>
-        <tr>
-          <td><code>progress</code></td>
-          <td>Shipped, unblocked, or hit milestone</td>
-          <td>"PR #507 merged, web layout live on staging"</td>
-          <td><code>notes/projects/{project}/</code></td>
-        </tr>
-        <tr>
-          <td><code>interaction</code></td>
-          <td>Meeting, call, or conversation</td>
-          <td>"Talked to Jane at Acme about Q3 timeline"</td>
-          <td><code>notes/crm/people/</code></td>
-        </tr>
-        <tr>
-          <td><code>observation</code></td>
-          <td>Cross-domain connection or insight</td>
-          <td>"Parking acquisition pipeline mirrors the email intake pattern"</td>
-          <td><code>knowledge/patterns/</code></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+      <div class="lane-grid">
+        <article class="lane work">
+          <p class="lane-label">Work / gbrain</p>
+          <h3>KraneBrain</h3>
+          <p>Meetings, decisions, people, projects, and operational context for work.</p>
+          <ul class="fact-list">
+            <li><strong>Canonical data</strong><span>KraneBrain Markdown vault</span></li>
+            <li><strong>Index</strong><span>Supabase Postgres</span></li>
+            <li><strong>Writer</strong><span>MacBook only</span></li>
+            <li><strong>Readers</strong><span>MacBook and Mac Mini</span></li>
+          </ul>
+        </article>
 
-  <!-- ===== VAULT STRUCTURE ===== -->
-  <h2>Vault Structure</h2>
-  <div class="vault-tree">
-<span class="existing">BrittBrain/</span>
-<span class="existing">&boxvr;&boxh;&boxh; Home.md</span>
-<span class="existing">&boxvr;&boxh;&boxh; AGENTS.md / CLAUDE.md</span>
-<span class="existing">&boxvr;&boxh;&boxh; inbox/</span>
-<span class="new">&boxvr;   &boxvr;&boxh;&boxh; claude/              &larr; NEW &mdash; raw captures from Claude Code</span>
-<span class="new">&boxvr;   &boxvr;&boxh;&boxh; brittbot/            &larr; NEW &mdash; raw captures from BrittBot</span>
-<span class="existing">&boxvr;   &boxur;&boxh;&boxh; (loose files)        existing quick-capture</span>
-<span class="existing">&boxvr;&boxh;&boxh; logs/</span>
-<span class="existing">&boxvr;   &boxvr;&boxh;&boxh; daily/               auto-generated daily summaries</span>
-<span class="existing">&boxvr;   &boxvr;&boxh;&boxh; books/               unchanged</span>
-<span class="existing">&boxvr;   &boxur;&boxh;&boxh; workouts/            unchanged</span>
-<span class="existing">&boxvr;&boxh;&boxh; notes/</span>
-<span class="existing">&boxvr;   &boxvr;&boxh;&boxh; projects/</span>
-<span class="new">&boxvr;   &boxvr;   &boxvr;&boxh;&boxh; well-kept/       &larr; NEW</span>
-<span class="new">&boxvr;   &boxvr;   &boxur;&boxh;&boxh; parking/         &larr; NEW</span>
-<span class="existing">&boxvr;   &boxvr;&boxh;&boxh; references/          unchanged</span>
-<span class="new">&boxvr;   &boxur;&boxh;&boxh; crm/                 &larr; NEW &mdash; CRM domain</span>
-<span class="new">&boxvr;       &boxvr;&boxh;&boxh; people/          person---first-last.md</span>
-<span class="new">&boxvr;       &boxur;&boxh;&boxh; companies/       company---name.md</span>
-<span class="new">&boxvr;&boxh;&boxh; knowledge/               &larr; NEW &mdash; distilled cross-domain</span>
-<span class="new">&boxvr;   &boxvr;&boxh;&boxh; decisions/</span>
-<span class="new">&boxvr;   &boxvr;&boxh;&boxh; learnings/</span>
-<span class="new">&boxvr;   &boxur;&boxh;&boxh; patterns/</span>
-<span class="new">&boxvr;&boxh;&boxh; _index/                  &larr; NEW &mdash; agent boot context</span>
-<span class="new">&boxvr;   &boxvr;&boxh;&boxh; active-context.md</span>
-<span class="new">&boxvr;   &boxvr;&boxh;&boxh; project-state.md</span>
-<span class="new">&boxvr;   &boxur;&boxh;&boxh; entity-map.md</span>
-<span class="existing">&boxur;&boxh;&boxh; ops/                     unchanged</span>
-  </div>
+        <article class="lane personal">
+          <p class="lane-label">Personal / brittbrain</p>
+          <h3>BrittBrain</h3>
+          <p>Books, workouts, podcasts, life records, and durable personal knowledge.</p>
+          <ul class="fact-list">
+            <li><strong>Canonical data</strong><span>BrittBrain Markdown vault</span></li>
+            <li><strong>Index</strong><span>Local PostgreSQL on the Mini</span></li>
+            <li><strong>Host</strong><span>Mac Mini only</span></li>
+            <li><strong>Readers</strong><span>MacBook and Mac Mini</span></li>
+          </ul>
+        </article>
+      </div>
+    </section>
 
-  <!-- ===== HABITS ===== -->
-  <h2>Habits Cheat Sheet</h2>
-  <p>The system is designed to run with zero manual effort. These optional habits maximize capture quality.</p>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th>When</th><th>Do</th><th>Why</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Ending a Claude session</td>
-          <td>Type <code>/exit</code> instead of closing the terminal</td>
-          <td>Gives SessionEnd hook time to write the daily log breadcrumb cleanly</td>
-        </tr>
-        <tr>
-          <td>After a big decision</td>
-          <td>Say "capture that decision to BrittBrain"</td>
-          <td>Prompts Claude to write a capture file immediately instead of waiting</td>
-        </tr>
-        <tr>
-          <td>Morning</td>
-          <td>Glance at <code>_index/active-context.md</code> in Obsidian</td>
-          <td>See what the system thinks you're working on &mdash; correct if wrong</td>
-        </tr>
-        <tr>
-          <td>Weekly</td>
-          <td>Browse the Obsidian graph view</td>
-          <td>Spot cross-domain connections the distillation agent created</td>
-        </tr>
-        <tr>
-          <td>After a Telegram conversation with BrittBot</td>
-          <td>Nothing &mdash; BrittBot auto-captures</td>
-          <td>Captures flow through <code>inbox/brittbot/</code> automatically</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+    <section class="reveal" aria-labelledby="machines-title">
+      <div class="section-heading">
+        <p class="section-index">03 / Machine roles</p>
+        <div>
+          <h2 id="machines-title">One owner for every background job</h2>
+          <p class="section-intro">Each index has a single maintenance authority. This avoids duplicate ingestion, conflicting writes, and unnecessary laptop load.</p>
+        </div>
+      </div>
 
-  <div class="footer">
-    <p>BrittBrain Unified Memory Architecture &mdash; Designed April 2026</p>
-    <p>Obsidian vault as single source of truth. Git-synced across devices. Automated capture, distillation, and retrieval.</p>
-  </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Machine</th>
+              <th scope="col">Work lane</th>
+              <th scope="col">Personal lane</th>
+              <th scope="col">What it does not do</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>MacBook</td>
+              <td>Edits KraneBrain; runs the sole work ingestion and maintenance process; queries Supabase through <code>gbrain</code>.</td>
+              <td>Queries the Mini through <code>brittbrain</code>.</td>
+              <td>Does not maintain a duplicate BrittBrain index.</td>
+            </tr>
+            <tr>
+              <td>Mac Mini</td>
+              <td>Keeps an Obsidian Sync mirror and queries the existing Supabase index through a query-only <code>gbrain</code> profile.</td>
+              <td>Hosts BrittBrain GBrain and its local PostgreSQL index through <code>brittbrain</code>.</td>
+              <td>Does not ingest KraneBrain or act as a second work-index writer.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="reveal" aria-labelledby="flow-title">
+      <div class="section-heading">
+        <p class="section-index">04 / Work away from laptop</p>
+        <div>
+          <h2 id="flow-title">The Mini retrieves; Supabase answers</h2>
+          <p class="section-intro">Work questions remain available through the always-on Mini without turning the Mini into a second ingestion host.</p>
+        </div>
+      </div>
+
+      <ol class="flow-list">
+        <li>
+          <div>
+            <strong>Ask Codex or Claude on the Mac Mini</strong>
+            <p>The client routes the work question to the MCP connection named <code>gbrain</code>.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>The query-only profile searches Supabase</strong>
+            <p>It reads the same KraneBrain index used by the MacBook and does not import from the mirrored vault.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <strong>Results return with the work source boundary intact</strong>
+            <p>The MacBook remains the only process that changes or refreshes the work index.</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="reveal" aria-labelledby="boundaries-title">
+      <div class="section-heading">
+        <p class="section-index">05 / Guardrails</p>
+        <div>
+          <h2 id="boundaries-title">Designed to stay simple</h2>
+          <p class="section-intro">The architecture deliberately avoids extra agents, duplicate databases, and automated cross-domain federation.</p>
+        </div>
+      </div>
+
+      <div class="boundary-grid">
+        <div class="boundary">
+          <h3>No agent dependency</h3>
+          <p>GBrain does not depend on <strong>BrittBot or OpenClaw</strong>. The Mac Mini is infrastructure, not an autonomous memory agent.</p>
+        </div>
+        <div class="boundary">
+          <h3>No second work index</h3>
+          <p>The Mini reuses the <strong>existing Supabase work database</strong>. It does not create or maintain a local KraneBrain database.</p>
+        </div>
+        <div class="boundary">
+          <h3>No automatic federation</h3>
+          <p>Work and personal retrieval remain separate by default. The caller chooses <code>gbrain</code> or <code>brittbrain</code>.</p>
+        </div>
+        <div class="boundary">
+          <h3>Markdown remains recoverable</h3>
+          <p>KraneBrain and BrittBrain vaults remain the durable source of truth. GBrain databases are derived retrieval indexes.</p>
+        </div>
+        <div class="boundary">
+          <h3>Freshness has one owner</h3>
+          <p>When the MacBook is offline, the Mini can still retrieve the last indexed work state. New work notes become searchable after MacBook maintenance resumes.</p>
+        </div>
+        <div class="boundary">
+          <h3>Files remain reachable</h3>
+          <p>Obsidian Sync mirrors KraneBrain to the Mini, so the notes remain locally available even though the Mini work profile is query-only.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="page-shell footer">
+    <p>GBrain memory architecture</p>
+    <p>Verified topology · August 2026</p>
+  </footer>
 
   <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
     mermaid.initialize({
       startOnLoad: true,
-      theme: 'dark',
-      securityLevel: 'loose',
+      theme: "dark",
+      securityLevel: "loose",
       flowchart: {
         useMaxWidth: true,
         htmlLabels: true,
-        curve: 'basis'
+        curve: "basis"
       }
     });
+
+    const revealItems = document.querySelectorAll(".reveal");
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+      revealItems.forEach((item) => item.classList.add("is-visible"));
+    } else {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.08 });
+
+      revealItems.forEach((item) => observer.observe(item));
+    }
   </script>
 </body>
 </html>
-```
-</invoke>
