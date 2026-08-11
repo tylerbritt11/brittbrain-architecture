@@ -540,7 +540,7 @@ flowchart TB
 
   subgraph PERSONAL["PERSONAL LANE — brittbrain"]
     BB_VAULT["BrittBrain<br/><small>Markdown vault</small>"]
-    GB_PERSONAL["Mini personal GBrain<br/><small>sole host + maintenance</small>"]
+    GB_PERSONAL["Mini personal GBrain<br/><small>local host + maintenance</small>"]
     LOCAL[("Local PostgreSQL<br/><small>personal index</small>")]
 
     BB_VAULT -->|"ingest + maintain"| GB_PERSONAL
@@ -550,7 +550,7 @@ flowchart TB
 
   MB_CLIENT -->|"gbrain"| GB_MB
   MM_CLIENT -->|"gbrain"| GB_MM
-  MB_CLIENT -->|"brittbrain"| GB_PERSONAL
+  MB_CLIENT -->|"brittbrain via private SSH"| GB_PERSONAL
   MM_CLIENT -->|"brittbrain"| GB_PERSONAL
   KB_MM -.->|"files available; no Mini ingestion"| MM_CLIENT
 
@@ -598,6 +598,7 @@ flowchart TB
             <li><strong>Index</strong><span>Local PostgreSQL on the Mini</span></li>
             <li><strong>Host</strong><span>Mac Mini only</span></li>
             <li><strong>Readers</strong><span>MacBook and Mac Mini</span></li>
+            <li><strong>MacBook path</strong><span>Private SSH stdio; no bearer</span></li>
           </ul>
         </article>
       </div>
@@ -626,7 +627,7 @@ flowchart TB
             <tr>
               <td>MacBook</td>
               <td>Edits KraneBrain; runs the sole work ingestion and maintenance process; queries Supabase through <code>gbrain</code>.</td>
-              <td>Queries the Mini through <code>brittbrain</code>.</td>
+              <td>Queries the Mini through <code>brittbrain</code> over private SSH stdio.</td>
               <td>Does not maintain a duplicate BrittBrain index.</td>
             </tr>
             <tr>
